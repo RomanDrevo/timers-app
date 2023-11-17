@@ -290,7 +290,14 @@ function App() {
 
     const handleStop = () => {
         dispatch(stopTimers());
+        Object.values(timerTimeouts).forEach(timerInstance => {
+            if (timerInstance) timerInstance.pause();
+        });
+
+        setTimerTimeouts({});
     };
+
+
 
     const handleResetToInit = () => {
         Object.values(timerTimeouts).forEach(timerInstance => {

@@ -86,7 +86,7 @@ const timersSlice = createSlice({
         stopTimers: (state) => {
             state.timers.forEach(timer => {
                 timer.isRunning = false;
-                timer.currentTime = 0
+                timer.currentTime = 0;
             });
         },
     },
