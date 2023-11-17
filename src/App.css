@@ -7,7 +7,7 @@
 .timer-controls{
   padding: 24px;
   flex: 1;
-  border: 1px solid red;
+  border: 1px solid #061d4f;
 }
 .timer-control{
   margin-top: 10px;

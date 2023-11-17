@@ -1,0 +1,86 @@
+import React, {useState} from "react";
+import {Button, Modal, TimePicker} from "antd";
+import {format} from "../utils";
+
+const TimerControls = ({
+                           onAdd,
+                           onReset,
+                           onDeleteAll,
+                           onStart,
+                           onPause,
+                           onResume,
+                           onStop,
+                           onResetToInit,
+                           isAnyTimerRunning,
+                           areTimersPaused,
+                           areAllTimersOver,
+                           onTimeChange,
+                           timePickerValue
+                       }) => {
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        setIsModalOpen(false);
+        onAdd()
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+
+    return (
+        <div className='timer-controls'>
+
+            <div className='timer-controls_manage'>
+                <Button className='timer-control' type='primary' disabled={isAnyTimerRunning} onClick={showModal}>Add
+                    New Timer</Button>
+
+                <Button className='timer-control' type='primary' onClick={onReset}
+                        disabled={isAnyTimerRunning}>Reset</Button>
+                <Button className='timer-control' type='primary' onClick={onDeleteAll} disabled={isAnyTimerRunning}>Delete
+                    All</Button>
+                <Button className='timer-control' type='primary' onClick={onStart}
+                        disabled={isAnyTimerRunning || areAllTimersOver}>Start</Button>
+
+                {areTimersPaused ? (
+                    <Button className='timer-control' type='primary'
+                            onClick={onResume}>Resume</Button>
+                ) : (
+                    <Button className='timer-control' type='primary' onClick={onPause}>Pause</Button>
+                )}
+
+                <Button className='timer-control' type='primary' onClick={onStop}
+                        disabled={areAllTimersOver || !isAnyTimerRunning}>Stop</Button>
+                <Button
+                    className='timer-control'
+                    type='primary'
+                    disabled={!isAnyTimerRunning}
+                    onClick={onResetToInit}
+                >
+                    Reset To Init
+                </Button>
+            </div>
+
+
+            <Modal title="Create new timer" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <TimePicker
+                    value={timePickerValue}
+                    onChange={onTimeChange}
+                    format={format}
+                    showNow={false}
+                    rootClassName='add-timer-input'
+                    disabled={isAnyTimerRunning}
+                />
+            </Modal>
+
+        </div>
+    );
+};
+
+export default TimerControls

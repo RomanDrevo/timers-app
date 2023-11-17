@@ -1,5 +1,6 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {loadTimersFromLocalStorage, saveTimersToLocalStorage} from "../utils";
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -11,7 +12,7 @@ const timersSlice = createSlice({
     reducers: {
         addTimer: (state, action) => {
             state.timers.push({
-                id: Math.random(),
+                id: uuidv4(),
                 initialTime: action.payload,
                 currentTime: 0,
                 isRunning: false,
