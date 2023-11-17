@@ -31,7 +31,6 @@ const Timer = ({ id, initialTime, isAnyTimerRunning }) => {
     useEffect(() => {
         let intervalId;
 
-        // Set up the interval only if the timer is running and not paused
         if (isRunning && !isPaused) {
             intervalId = setInterval(() => {
                 dispatch(tickTimer({ id }));
@@ -43,7 +42,7 @@ const Timer = ({ id, initialTime, isAnyTimerRunning }) => {
     }, [dispatch, id, isRunning, isPaused]);
 
     // Calculate the stroke dashoffset for the progress effect
-    const radius = 30; // Radius of the circle
+    const radius = 30;
     const circumference = 2 * Math.PI * radius;
     const offset = ((initialTime - currentTime) / initialTime) * circumference;
 
@@ -60,7 +59,6 @@ const Timer = ({ id, initialTime, isAnyTimerRunning }) => {
 
     return (
         <div>
-
             <div className="timer">
                 <svg width="80" height="80" className="timer-svg">
                     <circle
@@ -151,13 +149,6 @@ function App() {
   const [initialTimeInput, setInitialTimeInput] = useState('');
 
 
-  // const handleAddTimer = () => {
-  //   const initialTime = parseInt(initialTimeInput, 10);
-  //   dispatch(addTimer(initialTime));
-  //
-  //     setInitialTimeInput(''); // Reset input
-  // };
-
     const handleDeleteAll = () => {
         dispatch(deleteAllTimers());
     };
@@ -209,10 +200,6 @@ function App() {
         dispatch(resetToInitTimers());
     };
 
-    // const handleOnTimerChange = (time) => {
-    //     console.log('--->>>time: ', time)
-    // }
-
 
     return (
       <div className="App">
@@ -236,14 +223,6 @@ function App() {
               format={format}
               showNow={false}
           />
-
-
-        {/*<input*/}
-        {/*    type="number"*/}
-        {/*    value={initialTimeInput}*/}
-        {/*    onChange={(e) => setInitialTimeInput(e.target.value)}*/}
-        {/*/>*/}
-
 
           <div className="timers-container">
           {timers.map(timer => (

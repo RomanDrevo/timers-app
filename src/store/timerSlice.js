@@ -10,9 +10,8 @@ const timersSlice = createSlice({
     },
     reducers: {
         addTimer: (state, action) => {
-            // When adding a new timer, include an isRunning flag set to false
             state.timers.push({
-                id: Math.random(), // Consider using a more reliable ID generation method
+                id: Math.random(),
                 initialTime: action.payload,
                 currentTime: 0,
                 isRunning: false,
