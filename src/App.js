@@ -5,7 +5,7 @@ import {
     addTimer,
     deleteAllTimers,
     pauseTimers,
-    resetTimers, resetToInitTimers, resumeTimers,
+    resetTimers, resetToInitTimers, resumeTimer, resumeTimers,
     startTimer, stopTimers,
     tickTimer,
     updateTimer
@@ -27,18 +27,31 @@ const Timer = ({id, initialTime, isAnyTimerRunning}) => {
         dispatch(updateTimer({id, newInitialTime}));
     };
 
+    // useEffect(() => {
+    //     let intervalId;
+    //
+    //     if (isRunning && !isPaused) {
+    //         intervalId = setInterval(() => {
+    //             dispatch(tickTimer({id}));
+    //         }, 1000);
+    //     }
+    //
+    //     // Clean up the interval
+    //     return () => clearInterval(intervalId);
+    // }, [dispatch, id, isRunning, isPaused]);
+
     useEffect(() => {
         let intervalId;
-
         if (isRunning && !isPaused) {
             intervalId = setInterval(() => {
-                dispatch(tickTimer({id}));
+                dispatch(tickTimer({ id }));
             }, 1000);
+        } else {
+            clearInterval(intervalId);
         }
-
-        // Clean up the interval
         return () => clearInterval(intervalId);
     }, [dispatch, id, isRunning, isPaused]);
+
 
     // Calculate the stroke dashoffset for the progress effect
     const radius = 30;
@@ -154,11 +167,10 @@ const TimerControls = ({
                         disabled={isAnyTimerRunning || areAllTimersOver}>Start</Button>
 
                 {areTimersPaused ? (
-                    <Button className='timer-control' type='primary' disabled={!isAnyTimerRunning}
+                    <Button className='timer-control' type='primary'
                             onClick={onResume}>Resume</Button>
                 ) : (
-                    <Button className='timer-control' type='primary' onClick={onPause}
-                            disabled={areAllTimersOver || !isAnyTimerRunning}>Pause</Button>
+                    <Button className='timer-control' type='primary' onClick={onPause}>Pause</Button>
                 )}
 
                 <Button className='timer-control' type='primary' onClick={onStop}
@@ -199,8 +211,6 @@ function App() {
 
     const [timerTimeouts, setTimerTimeouts] = useState({});
 
-    console.log('--timerTimeouts: ', timerTimeouts);
-
     const [timePickerValue, setTimePickerValue] = useState(null);
 
     const handleAddTimer = () => {
@@ -210,10 +220,6 @@ function App() {
             setTimePickerValue(null); // Reset TimePicker
         }
     };
-
-
-    const [initialTimeInput, setInitialTimeInput] = useState('');
-
 
     const handleDeleteAll = () => {
         dispatch(deleteAllTimers());
@@ -260,14 +266,86 @@ function App() {
 
     const areAllTimersOver = timers.every(timer => timer.currentTime >= timer.initialTime);
 
+    const [pauseTime, setPauseTime] = useState(null);
+
 
     const handlePause = () => {
         dispatch(pauseTimers());
+
+        // Store the current time to calculate the remaining delay later
+        const pauseTime = Date.now();
+        setPauseTime(pauseTime); // Assuming you have a useState to keep track of pauseTime
+
+        // Keep track of timers that are scheduled to start
+        const newTimerTimeouts = { ...timerTimeouts };
+        Object.keys(newTimerTimeouts).forEach(timerId => {
+            clearTimeout(newTimerTimeouts[timerId]);
+            newTimerTimeouts[timerId] = null;
+        });
+        setTimerTimeouts(newTimerTimeouts);
     };
 
+
+
+
     const handleResume = () => {
+        const currentTime = Date.now();
+        const pauseDuration = currentTime - pauseTime;
+
+        // Find the timer with the longest remaining time at the moment of pause
+        const maxRemainingTimeAtPause = Math.max(...timers.map(timer =>
+            timer.isRunning ? timer.initialTime - timer.currentTime : timer.initialTime
+        ));
+
+        // Resume all paused timers
         dispatch(resumeTimers());
+
+        const newTimerTimeouts = {};
+
+        timers.forEach(timer => {
+            if (timer.isPaused) {
+                // Calculate the remaining time for running timers
+                const remainingTime = timer.initialTime - timer.currentTime;
+                const adjustedTime = remainingTime - pauseDuration;
+
+                // Adjust delay for each timer to ensure simultaneous finish
+                const delay = maxRemainingTimeAtPause - adjustedTime;
+
+                if (delay >= 0) {
+                    // Set a timeout to resume the timer
+                    newTimerTimeouts[timer.id] = setTimeout(() => {
+                        dispatch(startTimer({ id: timer.id }));
+                    }, delay);
+                }
+            } else if (!timer.isRunning && !timer.isPaused) {
+                // Calculate the adjusted delay for timers that hadn't started
+                const initialDelay = timer.initialTime - pauseDuration;
+                const adjustedDelay = maxRemainingTimeAtPause - initialDelay;
+
+                if (adjustedDelay >= 0) {
+                    // Set a timeout to start the timer
+                    newTimerTimeouts[timer.id] = setTimeout(() => {
+                        dispatch(startTimer({ id: timer.id }));
+                    }, adjustedDelay);
+                }
+            }
+        });
+
+        setTimerTimeouts(newTimerTimeouts);
+        setPauseTime(null); // Reset pause time
     };
+
+
+
+
+
+
+
+
+
+
+
+
 
     const handleStop = () => {
         dispatch(stopTimers());
@@ -302,7 +380,7 @@ function App() {
 
 
             <TimerControls
-                onAdd={() => handleAddTimer(initialTimeInput)}
+                onAdd={() => handleAddTimer('')}
                 onStart={handleStart}
                 onReset={handleReset}
                 isAnyTimerRunning={isAnyTimerRunning}

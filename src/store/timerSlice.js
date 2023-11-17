@@ -61,18 +61,25 @@ const timersSlice = createSlice({
             state.timers = [];
             localStorage.removeItem('timers');
         },
-        pauseTimers: (state, action) => {
+        pauseTimers: (state) => {
             state.timers.forEach(timer => {
-                timer.isPaused = true;
-                timer.isRunning = false;
+                if (timer.isRunning) {
+                    timer.isPaused = true;
+                }
             });
         },
-        resumeTimers: (state, action) => {
+
+
+
+        resumeTimers: (state) => {
             state.timers.forEach(timer => {
-                timer.isRunning = true;
-                timer.isPaused = false;
+                if (timer.isPaused) {
+                    timer.isPaused = false;
+                }
             });
         },
+
+
         stopTimers: (state) => {
             state.timers.forEach(timer => {
                 timer.isRunning = false;
@@ -82,5 +89,5 @@ const timersSlice = createSlice({
     },
 });
 
-export const { deleteAllTimers, updateTimer, addTimer, startTimer, tickTimer, resetTimers, pauseTimers, resetToInitTimers, resumeTimers, stopTimers } = timersSlice.actions;
+export const { resumeTimer, deleteAllTimers, updateTimer, addTimer, startTimer, tickTimer, resetTimers, pauseTimers, resetToInitTimers, resumeTimers, stopTimers } = timersSlice.actions;
 export const timerReducer = timersSlice.reducer;
