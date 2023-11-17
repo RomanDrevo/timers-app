@@ -45,14 +45,13 @@ const TimerControls = ({
                         disabled={isAnyTimerRunning}>Reset</Button>
                 <Button className='timer-control' type='primary' onClick={onDeleteAll} disabled={isAnyTimerRunning}>Delete
                     All</Button>
-                <Button className='timer-control' type='primary' onClick={onStart}
-                        disabled={isAnyTimerRunning || areAllTimersOver}>Start</Button>
+                <Button className='timer-control' type='primary' onClick={onStart}>Start</Button>
 
                 {areTimersPaused ? (
                     <Button className='timer-control' type='primary'
                             onClick={onResume}>Resume</Button>
                 ) : (
-                    <Button className='timer-control' type='primary' onClick={onPause}>Pause</Button>
+                    <Button disabled={areAllTimersOver || !isAnyTimerRunning} className='timer-control' type='primary' onClick={onPause}>Pause</Button>
                 )}
 
                 <Button className='timer-control' type='primary' onClick={onStop}

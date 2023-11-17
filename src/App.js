@@ -40,17 +40,6 @@ function App() {
         dispatch(deleteAllTimers());
     };
 
-
-    const onStart = () => {
-        const maxTime = Math.max(...timers.map(timer => timer.initialTime));
-
-        timers.forEach(timer => {
-            const delay = (maxTime - timer.initialTime) * 1000;
-            const timerInstance = new TimerClass(() => dispatch(startTimer({id: timer.id})), delay);
-            setTimerTimeouts(prev => ({...prev, [timer.id]: timerInstance}));
-        });
-    };
-
     useEffect(() => {
         return () => {
             // Clear all timeouts when the component unmounts
@@ -60,7 +49,7 @@ function App() {
 
 
     const handleStart = () => {
-        onStart();
+        handleResetToInit()
     };
 
     const handleReset = () => {
