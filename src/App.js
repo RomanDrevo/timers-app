@@ -293,18 +293,13 @@ function App() {
     };
 
     const handleResetToInit = () => {
-        // Clear existing timeouts
         Object.values(timerTimeouts).forEach(timerInstance => {
             if (timerInstance) timerInstance.pause();
         });
 
-        // Reset timers
         dispatch(resetToInitTimers());
-
-        // Calculate the maximum initial time among all timers
         const maxTime = Math.max(...timers.map(timer => timer.initialTime));
 
-        // Restart each timer with its initial delay
         timers.forEach(timer => {
             const delay = (maxTime - timer.initialTime) * 1000;
             const timerInstance = new TimerClass(() => dispatch(startTimer({ id: timer.id })), delay);
@@ -316,7 +311,6 @@ function App() {
 
     return (
         <div className="App">
-
 
             <TimerControls
                 onAdd={() => handleAddTimer('')}
