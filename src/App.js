@@ -294,26 +294,24 @@ function App() {
 
     const handleResetToInit = () => {
         // Clear existing timeouts
-        Object.values(timerTimeouts).forEach(clearTimeout);
+        Object.values(timerTimeouts).forEach(timerInstance => {
+            if (timerInstance) timerInstance.pause();
+        });
 
         // Reset timers
         dispatch(resetToInitTimers());
 
-        const newTimerTimeouts = {};
+        // Calculate the maximum initial time among all timers
         const maxTime = Math.max(...timers.map(timer => timer.initialTime));
 
+        // Restart each timer with its initial delay
         timers.forEach(timer => {
-            const delay = (maxTime - timer.initialTime) * 1000; // Delay in milliseconds
-
-            const timeoutId = setTimeout(() => {
-                dispatch(startTimer({id: timer.id}));
-            }, delay);
-
-            newTimerTimeouts[timer.id] = timeoutId;
+            const delay = (maxTime - timer.initialTime) * 1000;
+            const timerInstance = new TimerClass(() => dispatch(startTimer({ id: timer.id })), delay);
+            setTimerTimeouts(prev => ({ ...prev, [timer.id]: timerInstance }));
         });
-
-        setTimerTimeouts(newTimerTimeouts);
     };
+
 
 
     return (

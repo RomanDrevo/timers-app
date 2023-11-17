@@ -25,7 +25,9 @@ const timersSlice = createSlice({
                 timer.isRunning = false;
                 timer.isPaused = false;
             });
+            saveTimersToLocalStorage(state.timers);
         },
+
         startTimer: (state, action) => {
             const timer = state.timers.find(timer => timer.id === action.payload.id);
             if (timer) {
@@ -72,11 +74,6 @@ const timersSlice = createSlice({
             });
         },
 
-
-
-
-
-
         resumeTimers: (state) => {
             state.timers.forEach(timer => {
                 if (timer.isPaused) {
@@ -85,8 +82,6 @@ const timersSlice = createSlice({
                 }
             });
         },
-
-
 
         stopTimers: (state) => {
             state.timers.forEach(timer => {
