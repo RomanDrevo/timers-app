@@ -19,9 +19,23 @@ const timersSlice = createSlice({
             });
             saveTimersToLocalStorage(state.timers);
         },
+        // startTimer: (state, action) => {
+        //     const timer = state.timers.find(timer => timer.id === action.payload.id);
+        //     if (timer) {
+        //         timer.isRunning = true;
+        //         timer.isPaused = false;
+        //     }
+        // },
+        resetToInitTimers: (state) => {
+            state.timers.forEach(timer => {
+                timer.currentTime = 0;
+                timer.isRunning = false;
+                timer.isPaused = false;
+            });
+        },
         startTimer: (state, action) => {
             const timer = state.timers.find(timer => timer.id === action.payload.id);
-            if (timer && timer.initialTime > 0) {
+            if (timer) {
                 timer.isRunning = true;
             }
         },
@@ -72,14 +86,13 @@ const timersSlice = createSlice({
                 timer.currentTime = 0
             });
         },
-        resetToInitTimers: (state) => {
-            state.timers.forEach(timer => {
-                timer.currentTime = 0;
-                timer.isRunning = true;
-            });
-
-            // state.isPaused = false;
-        },
+        // resetToInitTimers: (state) => {
+        //     state.timers.forEach(timer => {
+        //         timer.currentTime = 0;
+        //         timer.isRunning = false;
+        //     });
+        //     saveTimersToLocalStorage(state.timers);
+        // },
     },
 });
 

@@ -11,21 +11,20 @@ import {
     updateTimer
 } from "./store/timerSlice";
 import './timer.css'
-import { TimePicker, Button } from 'antd';
-
+import {TimePicker, Button, Modal} from 'antd';
 
 
 const format = 'mm:ss';
 
 
-const Timer = ({ id, initialTime, isAnyTimerRunning }) => {
+const Timer = ({id, initialTime, isAnyTimerRunning}) => {
     const dispatch = useDispatch();
     const timer = useSelector(state => state.timer.timers.find(t => t.id === id));
-    const { currentTime, isRunning, isPaused } = timer;
+    const {currentTime, isRunning, isPaused} = timer;
 
     const handleUpdateTimer = (time) => {
         const newInitialTime = time.$m * 60 + time.$s;
-        dispatch(updateTimer({ id, newInitialTime }));
+        dispatch(updateTimer({id, newInitialTime}));
     };
 
     useEffect(() => {
@@ -33,7 +32,7 @@ const Timer = ({ id, initialTime, isAnyTimerRunning }) => {
 
         if (isRunning && !isPaused) {
             intervalId = setInterval(() => {
-                dispatch(tickTimer({ id }));
+                dispatch(tickTimer({id}));
             }, 1000);
         }
 
@@ -46,7 +45,6 @@ const Timer = ({ id, initialTime, isAnyTimerRunning }) => {
     const circumference = 2 * Math.PI * radius;
     const offset = ((initialTime - currentTime) / initialTime) * circumference;
 
-    // Format timeLeft as MM:SS
     const formatTime = (time) => {
         const minutes = Math.floor(time / 60);
         const seconds = time % 60;
@@ -54,11 +52,25 @@ const Timer = ({ id, initialTime, isAnyTimerRunning }) => {
     };
 
 
-
     const timeLeft = formatTime(timer.initialTime - timer.currentTime);
 
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
     return (
-        <div>
+        <div className='timer-wrapper'>
             <div className="timer">
                 <svg width="80" height="80" className="timer-svg">
                     <circle
@@ -77,17 +89,22 @@ const Timer = ({ id, initialTime, isAnyTimerRunning }) => {
                 </div>
             </div>
 
-            <div className='update-timer'>
-                <TimePicker disabled={isAnyTimerRunning} onChange={handleUpdateTimer} format={format} showNow={false} />
-            </div>
+            <Button disabled={isAnyTimerRunning} type='primary' onClick={showModal}>Update timer</Button>
+
+
+            <Modal title="Update timer" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <TimePicker
+                    onChange={handleUpdateTimer}
+                    format={format}
+                    showNow={false}
+                />
+
+            </Modal>
+
         </div>
 
     );
 };
-
-
-
-
 
 
 const TimerControls = ({
@@ -105,31 +122,69 @@ const TimerControls = ({
                            onTimeChange,
                            timePickerValue
                        }) => {
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        setIsModalOpen(false);
+        onAdd()
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+
     return (
         <div className='timer-controls'>
 
-            <TimePicker
-                value={timePickerValue}
-                onChange={onTimeChange}
-                format={format}
-                showNow={false}
-                rootClassName='add-timer-input'
-                disabled={isAnyTimerRunning}
-            />
+            <div className='timer-controls_manage'>
+                <Button className='timer-control' type='primary' disabled={isAnyTimerRunning} onClick={showModal}>Add
+                    New Timer</Button>
 
-            <Button type='primary' disabled={isAnyTimerRunning} onClick={onAdd}>Add New Timer</Button>
-            <Button type='primary' onClick={onReset} disabled={isAnyTimerRunning}>Reset</Button>
-            <Button type='primary' onClick={onDeleteAll} disabled={isAnyTimerRunning}>Delete All</Button>
-            <Button type='primary' onClick={onStart} disabled={isAnyTimerRunning || areAllTimersOver}>Start</Button>
+                <Button className='timer-control' type='primary' onClick={onReset}
+                        disabled={isAnyTimerRunning}>Reset</Button>
+                <Button className='timer-control' type='primary' onClick={onDeleteAll} disabled={isAnyTimerRunning}>Delete
+                    All</Button>
+                <Button className='timer-control' type='primary' onClick={onStart}
+                        disabled={isAnyTimerRunning || areAllTimersOver}>Start</Button>
 
-            {areTimersPaused ? (
-                <Button type='primary' onClick={onResume}>Resume</Button>
-            ) : (
-                <Button type='primary' onClick={onPause} disabled={areAllTimersOver}>Pause</Button>
-            )}
+                {areTimersPaused ? (
+                    <Button className='timer-control' type='primary' disabled={!isAnyTimerRunning}
+                            onClick={onResume}>Resume</Button>
+                ) : (
+                    <Button className='timer-control' type='primary' onClick={onPause}
+                            disabled={areAllTimersOver || !isAnyTimerRunning}>Pause</Button>
+                )}
 
-            <Button type='primary' onClick={onStop} disabled={areAllTimersOver}>Stop</Button>
-            <Button type='primary' onClick={onResetToInit}>Reset To Init</Button>
+                <Button className='timer-control' type='primary' onClick={onStop}
+                        disabled={areAllTimersOver || !isAnyTimerRunning}>Stop</Button>
+                <Button
+                    className='timer-control'
+                    type='primary'
+                    disabled={!isAnyTimerRunning}
+                    onClick={onResetToInit}
+                >
+                    Reset To Init
+                </Button>
+            </div>
+
+
+            <Modal title="Create new timer" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <TimePicker
+                    value={timePickerValue}
+                    onChange={onTimeChange}
+                    format={format}
+                    showNow={false}
+                    rootClassName='add-timer-input'
+                    disabled={isAnyTimerRunning}
+                />
+            </Modal>
+
         </div>
     );
 };
@@ -137,10 +192,14 @@ const TimerControls = ({
 
 function App() {
 
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
-  const timers = useSelector((state) => state.timer.timers);
+    const timers = useSelector((state) => state.timer.timers);
 
+
+    const [timerTimeouts, setTimerTimeouts] = useState({});
+
+    console.log('--timerTimeouts: ', timerTimeouts);
 
     const [timePickerValue, setTimePickerValue] = useState(null);
 
@@ -153,10 +212,7 @@ function App() {
     };
 
 
-
-
-
-  const [initialTimeInput, setInitialTimeInput] = useState('');
+    const [initialTimeInput, setInitialTimeInput] = useState('');
 
 
     const handleDeleteAll = () => {
@@ -164,27 +220,38 @@ function App() {
     };
 
 
+    const onStart = () => {
+        const maxTime = Math.max(...timers.map(timer => timer.initialTime));
+        const newTimerTimeouts = {};
 
-  const onStart = () => {
-    const maxTime = Math.max(...timers.map(timer => timer.initialTime));
+        timers.forEach(timer => {
+            const delay = (maxTime - timer.initialTime) * 1000;
 
-    timers.forEach(timer => {
-      const delay = (maxTime - timer.initialTime) * 1000; // convert to milliseconds
+            const timeoutId = setTimeout(() => {
+                dispatch(startTimer({id: timer.id}));
+            }, delay);
 
-      setTimeout(() => {
-        dispatch(startTimer({ id: timer.id }));
-      }, delay);
-    });
-  };
+            newTimerTimeouts[timer.id] = timeoutId;
+        });
+
+        setTimerTimeouts(newTimerTimeouts);
+    };
+
+    useEffect(() => {
+        return () => {
+            // Clear all timeouts when the component unmounts
+            Object.values(timerTimeouts).forEach(clearTimeout);
+        };
+    }, [timerTimeouts]);
 
 
-  const handleStart = () => {
-    onStart();
-  };
+    const handleStart = () => {
+        onStart();
+    };
 
-  const handleReset = () => {
-    dispatch(resetTimers());
-  };
+    const handleReset = () => {
+        dispatch(resetTimers());
+    };
 
     const isAnyTimerRunning = timers.some(timer => timer.isRunning);
 
@@ -207,47 +274,60 @@ function App() {
     };
 
     const handleResetToInit = () => {
+        // Clear existing timeouts
+        Object.values(timerTimeouts).forEach(clearTimeout);
+
+        // Reset timers
         dispatch(resetToInitTimers());
+
+        const newTimerTimeouts = {};
+        const maxTime = Math.max(...timers.map(timer => timer.initialTime));
+
+        timers.forEach(timer => {
+            const delay = (maxTime - timer.initialTime) * 1000; // Delay in milliseconds
+
+            const timeoutId = setTimeout(() => {
+                dispatch(startTimer({id: timer.id}));
+            }, delay);
+
+            newTimerTimeouts[timer.id] = timeoutId;
+        });
+
+        setTimerTimeouts(newTimerTimeouts);
     };
 
 
     return (
-      <div className="App">
-          <div className='add-timer'>
-
-              {/*<TimePicker*/}
-              {/*    value={timePickerValue}*/}
-              {/*    onChange={setTimePickerValue}*/}
-              {/*    format={format}*/}
-              {/*    showNow={false}*/}
-              {/*    rootClassName='add-timer-input'*/}
-              {/*/>*/}
-
-              <TimerControls
-                  onAdd={() => handleAddTimer(initialTimeInput)}
-                  onStart={handleStart}
-                  onReset={handleReset}
-                  isAnyTimerRunning={isAnyTimerRunning}
-                  onDeleteAll={handleDeleteAll}
-                  onPause={handlePause}
-                  onResume={handleResume}
-                  onStop={handleStop}
-                  onResetToInit={handleResetToInit}
-                  areTimersPaused={areTimersPaused}
-                  areAllTimersOver={areAllTimersOver}
-                  onTimeChange={setTimePickerValue}
-                  timePickerValue={timePickerValue}
-              />
-          </div>
+        <div className="App">
 
 
-          <div className="timers-container">
-          {timers.map(timer => (
-              <Timer isAnyTimerRunning={isAnyTimerRunning} key={timer.id} id={timer.id} initialTime={timer.initialTime} currentTime={timer.currentTime} />
-          ))}
+            <TimerControls
+                onAdd={() => handleAddTimer(initialTimeInput)}
+                onStart={handleStart}
+                onReset={handleReset}
+                isAnyTimerRunning={isAnyTimerRunning}
+                onDeleteAll={handleDeleteAll}
+                onPause={handlePause}
+                onResume={handleResume}
+                onStop={handleStop}
+                onResetToInit={handleResetToInit}
+                areTimersPaused={areTimersPaused}
+                areAllTimersOver={areAllTimersOver}
+                onTimeChange={setTimePickerValue}
+                timePickerValue={timePickerValue}
+            />
+
+
+            <div className="timers-container">
+                {timers.map(timer => (
+                    <Timer isAnyTimerRunning={isAnyTimerRunning} key={timer.id} id={timer.id}
+                           initialTime={timer.initialTime} currentTime={timer.currentTime}/>
+                ))}
+            </div>
+
+
         </div>
-      </div>
-  );
+    );
 }
 
 export default App;
