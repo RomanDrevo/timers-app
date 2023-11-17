@@ -1,0 +1,19 @@
+.timer {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 80px;
+}
+
+.timer-svg {
+    transform: rotate(-90deg); /* Rotate the circle to start progress from the top */
+    position: absolute;
+}
+
+.timer-text {
+    position: absolute;
+    font-size: 18px;
+    color: white;
+}
