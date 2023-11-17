@@ -11,7 +11,7 @@ import {
     updateTimer
 } from "./store/timerSlice";
 import './timer.css'
-import { TimePicker } from 'antd';
+import { TimePicker, Button } from 'antd';
 
 
 
@@ -101,23 +101,35 @@ const TimerControls = ({
                            onResetToInit,
                            isAnyTimerRunning,
                            areTimersPaused,
-                           areAllTimersOver
+                           areAllTimersOver,
+                           onTimeChange,
+                           timePickerValue
                        }) => {
     return (
-        <div>
-            <button disabled={isAnyTimerRunning} onClick={onAdd}>Add New</button>
-            <button onClick={onReset} disabled={isAnyTimerRunning}>Reset</button>
-            <button onClick={onDeleteAll} disabled={isAnyTimerRunning}>Delete All</button>
-            <button onClick={onStart} disabled={isAnyTimerRunning || areAllTimersOver}>Start</button>
+        <div className='timer-controls'>
+
+            <TimePicker
+                value={timePickerValue}
+                onChange={onTimeChange}
+                format={format}
+                showNow={false}
+                rootClassName='add-timer-input'
+                disabled={isAnyTimerRunning}
+            />
+
+            <Button type='primary' disabled={isAnyTimerRunning} onClick={onAdd}>Add New Timer</Button>
+            <Button type='primary' onClick={onReset} disabled={isAnyTimerRunning}>Reset</Button>
+            <Button type='primary' onClick={onDeleteAll} disabled={isAnyTimerRunning}>Delete All</Button>
+            <Button type='primary' onClick={onStart} disabled={isAnyTimerRunning || areAllTimersOver}>Start</Button>
 
             {areTimersPaused ? (
-                <button onClick={onResume}>Resume</button>
+                <Button type='primary' onClick={onResume}>Resume</Button>
             ) : (
-                <button onClick={onPause} disabled={areAllTimersOver}>Pause</button>
+                <Button type='primary' onClick={onPause} disabled={areAllTimersOver}>Pause</Button>
             )}
 
-            <button onClick={onStop} disabled={areAllTimersOver}>Stop</button>
-            <button onClick={onResetToInit}>Reset To Init</button>
+            <Button type='primary' onClick={onStop} disabled={areAllTimersOver}>Stop</Button>
+            <Button type='primary' onClick={onResetToInit}>Reset To Init</Button>
         </div>
     );
 };
@@ -128,8 +140,6 @@ function App() {
   const dispatch = useDispatch();
 
   const timers = useSelector((state) => state.timer.timers);
-
-
 
 
     const [timePickerValue, setTimePickerValue] = useState(null);
@@ -203,26 +213,33 @@ function App() {
 
     return (
       <div className="App">
-        <TimerControls
-            onAdd={() => handleAddTimer(initialTimeInput)}
-            onStart={handleStart}
-            onReset={handleReset}
-            isAnyTimerRunning={isAnyTimerRunning}
-            onDeleteAll={handleDeleteAll}
-            onPause={handlePause}
-            onResume={handleResume}
-            onStop={handleStop}
-            onResetToInit={handleResetToInit}
-            areTimersPaused={areTimersPaused}
-            areAllTimersOver={areAllTimersOver}
-        />
+          <div className='add-timer'>
 
-          <TimePicker
-              value={timePickerValue}
-              onChange={setTimePickerValue}
-              format={format}
-              showNow={false}
-          />
+              {/*<TimePicker*/}
+              {/*    value={timePickerValue}*/}
+              {/*    onChange={setTimePickerValue}*/}
+              {/*    format={format}*/}
+              {/*    showNow={false}*/}
+              {/*    rootClassName='add-timer-input'*/}
+              {/*/>*/}
+
+              <TimerControls
+                  onAdd={() => handleAddTimer(initialTimeInput)}
+                  onStart={handleStart}
+                  onReset={handleReset}
+                  isAnyTimerRunning={isAnyTimerRunning}
+                  onDeleteAll={handleDeleteAll}
+                  onPause={handlePause}
+                  onResume={handleResume}
+                  onStop={handleStop}
+                  onResetToInit={handleResetToInit}
+                  areTimersPaused={areTimersPaused}
+                  areAllTimersOver={areAllTimersOver}
+                  onTimeChange={setTimePickerValue}
+                  timePickerValue={timePickerValue}
+              />
+          </div>
+
 
           <div className="timers-container">
           {timers.map(timer => (
