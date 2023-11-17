@@ -23,7 +23,6 @@ function App() {
 
     const timers = useSelector((state) => state.timer.timers);
 
-
     const [timerTimeouts, setTimerTimeouts] = useState({});
 
     const [timePickerValue, setTimePickerValue] = useState(null);
@@ -120,6 +119,7 @@ function App() {
                 areAllTimersOver={areAllTimersOver}
                 onTimeChange={setTimePickerValue}
                 timePickerValue={timePickerValue}
+                timersCount={timers.length}
             />
 
 

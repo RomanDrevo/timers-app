@@ -15,7 +15,8 @@ const TimerControls = ({
                            areTimersPaused,
                            areAllTimersOver,
                            onTimeChange,
-                           timePickerValue
+                           timePickerValue,
+                           timersCount
                        }) => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,6 +35,9 @@ const TimerControls = ({
     };
 
 
+    const isTimerListEmpty = timersCount === 0;
+    const canModifyTimers = !isAnyTimerRunning && !isTimerListEmpty;
+
     return (
         <div className='timer-controls'>
 
@@ -42,10 +46,10 @@ const TimerControls = ({
                     New Timer</Button>
 
                 <Button className='timer-control' type='primary' onClick={onReset}
-                        disabled={isAnyTimerRunning}>Reset</Button>
-                <Button className='timer-control' type='primary' onClick={onDeleteAll} disabled={isAnyTimerRunning}>Delete
+                        disabled={!canModifyTimers}>Reset</Button>
+                <Button className='timer-control' type='primary' onClick={onDeleteAll} disabled={!canModifyTimers}>Delete
                     All</Button>
-                <Button className='timer-control' type='primary' onClick={onStart}>Start</Button>
+                <Button disabled={isTimerListEmpty} className='timer-control' type='primary' onClick={onStart}>Start</Button>
 
                 {areTimersPaused ? (
                     <Button className='timer-control' type='primary'
